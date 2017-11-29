@@ -7,22 +7,22 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
+// This component handles the interface between the editor and the WFC algorithm
 [RequireComponent(typeof(BoxCollider))]
 public class TilePainter : MonoBehaviour{
-
-	public int gridsize = 1;
+	public int gridsize = 1; // Unity units per grid square.
 	public int width = 20;
 	public int height = 20;
-	public GameObject tiles;
-	private bool _changed = true;
-	public Vector3 cursor;
-	public bool focused = false;
-	public GameObject[,] tileobs;
+	public GameObject tiles; // Empty object grouping the tile objects.
+	private bool _changed = true; // flag for scale/position corrections on resize
+	public Vector3 cursor; // Mouse interaction
+	public bool focused = false; // Visual feedback flag
+	public GameObject[,] tileobs; // References to tile objects
 	
 
-	int colidx = 0;
-	public List<UnityEngine.Object> palette = new List<UnityEngine.Object>();
-	public UnityEngine.Object color = null;
+	int colidx = 0; // Abbreviates "color index", not "collide x"
+	public List<UnityEngine.Object> palette = new List<UnityEngine.Object>(); // list of colors (see below)
+	public UnityEngine.Object color = null; // object to place on click
 	Quaternion color_rotation;
 
 	
@@ -56,8 +56,9 @@ public class TilePainter : MonoBehaviour{
 		return o;
 	}
 
+	// Ensure a correct internal state, mainly by tearing down and rebuilding it. Called a lot.
 	public void Restore(){
-
+		// An unlisted object to make all in-palette objects visible in the editor
 		Transform palt = transform.Find("palette");
 		if (palt != null){GameObject.DestroyImmediate(palt.gameObject);}
 		GameObject pal = new GameObject("palette");
@@ -73,7 +74,7 @@ public class TilePainter : MonoBehaviour{
 
 		
 		int palette_folder = -1;
-
+		// fill up the palette-visualizer object
 		for (int i = 0; i < palette.Count; i++){
 			UnityEngine.Object o = palette[i];
 			if (IsAssetAFolder(o)){
@@ -87,7 +88,7 @@ public class TilePainter : MonoBehaviour{
 				}
 			}
 		}
-
+		// if the palette has a folder, dump its contents into the palette and try again recursively
 		if (palette_folder != -1){
 			string path = AssetDatabase.GetAssetPath(palette[palette_folder].GetInstanceID());
 			path = path.Trim().Replace("Assets/Resources/", "");
@@ -99,6 +100,7 @@ public class TilePainter : MonoBehaviour{
 			Restore();
 		}
  
+		// Set up the "tiles" object grouping tiles
 		tileobs = new GameObject[width, height];
 		if (tiles == null){
 			tiles = new GameObject("tiles");
@@ -107,13 +109,14 @@ public class TilePainter : MonoBehaviour{
 		}
 		int cnt = tiles.transform.childCount;
 		List<GameObject> trash = new List<GameObject>();
+		// store tiles in the array matching their position, or delete them if moved outside.
 		for (int i = 0; i < cnt; i++){
 			GameObject tile = tiles.transform.GetChild(i).gameObject;
 			Vector3 tilepos = tile.transform.localPosition;
 			int X = (int)(tilepos.x / gridsize);
 			int Y = (int)(tilepos.y / gridsize);
 			if (ValidCoords(X, Y)){
-			tileobs[X, Y] = tile; 
+				tileobs[X, Y] = tile; 
 			} else {
 				trash.Add(tile);
 			}
@@ -128,6 +131,8 @@ public class TilePainter : MonoBehaviour{
 		}
 	}
 
+	// Ensure a correct internal state including local scaling.
+	// Called on all mouse moves, clicks, and drags.
 	public void Resize(){
 		transform.localScale = new Vector3(1,1,1);
 		if (_changed){
@@ -151,6 +156,7 @@ public class TilePainter : MonoBehaviour{
 		bounds.size = new Vector3(width*gridsize, (height*gridsize), 0f);
 	}
 
+	// Map a coordinate to the grid
 	public Vector3 GridV3(Vector3 pos){
 		Vector3 p = transform.InverseTransformPoint(pos) + new Vector3(gridsize*0.5f,gridsize*0.5f, 0f);
 		return new Vector3((int)(p.x/gridsize), (int)(p.y/gridsize), 0);
@@ -184,6 +190,8 @@ public class TilePainter : MonoBehaviour{
 		return this.transform.TransformPoint(p);
 	}
 
+	// Respond to mouse clicks/drags as informed by TileLayerEditor.
+	// Does not actually use mouse position, only internal cursor?
 	public void Drag(Vector3 mouse, TileLayerEditor.TileOperation op){
 		Resize();
 		if (tileobs == null){Restore();}
@@ -194,7 +202,7 @@ public class TilePainter : MonoBehaviour{
 					color = s;
 					color_rotation = tileobs[(int)cursor.x, (int)cursor.y].transform.localRotation;
 				}
-			} else {
+			} else { // drawing and erasing both destroy, because no overlaps
 				DestroyImmediate(tileobs[(int)cursor.x, (int)cursor.y]); 
 				if (op == TileLayerEditor.TileOperation.Drawing){
 					if (color == null){return;}
@@ -207,6 +215,7 @@ public class TilePainter : MonoBehaviour{
 			}
 		} else {
 			if (op == TileLayerEditor.TileOperation.Sampling){
+				// sampling outside the canvas is still valid if you're sampling the palette
 				if (cursor.y == -1 && cursor.x >= 0 && cursor.x < palette.Count){
 					color = palette[(int)cursor.x];
 					color_rotation = Quaternion.identity;
@@ -223,6 +232,7 @@ public class TilePainter : MonoBehaviour{
 		tiles.transform.localPosition = new Vector3();
 	}
 
+	// Draws the lines marking the on-grid cursor position
 	public void OnDrawGizmos(){
 		Gizmos.color = Color.white;
 		Gizmos.matrix = transform.localToWorldMatrix;
@@ -241,6 +251,7 @@ public class TilePainter : MonoBehaviour{
 }
  
 
+// Editor interaction for the TilePainter
 #if UNITY_EDITOR
  [CustomEditor(typeof(TilePainter))]
  public class TileLayerEditor : Editor{
