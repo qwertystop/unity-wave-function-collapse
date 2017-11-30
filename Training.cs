@@ -6,18 +6,18 @@ using UnityEditor;
 #endif
 using System.Collections.Generic;
 
-// This component handles the interface between the editor
-// and the output of the WFC algorithm
+// This component samples a subset of the canvas for the algorithm to learn from
 class Training : MonoBehaviour{
 	public int gridsize = 1; // Unity units per grid square
-	public int width = 12;
-	public int depth = 12;
-	public UnityEngine.Object[] tiles = new UnityEngine.Object[0];
-	public int[] RS = new int[0];
-	public Dictionary<string, byte> str_tile;
-	Dictionary<string, int[]> neighbors;
-	public byte[,] sample; 
+	public int width = 12; // Width of subset
+	public int depth = 12; // Height ""
+	public UnityEngine.Object[] tiles = new UnityEngine.Object[0];  // Tiles, in the order discovered in the current sample
+	public int[] RS = new int[0]; // Rotations of those tiles, same index
+	public Dictionary<string, byte> str_tile; // Tile name + tile rotation -> index in tiles and RS
+	Dictionary<string, int[]> neighbors; // For serializing
+	public byte[,] sample; // Current sample read from canvas, contains index in tiles/RS
 
+	// unused, just indexes into 2d array
 	public static byte Get2DByte(byte[,] ar, int x, int y){
 		return ar[x, y];
 	}
@@ -26,6 +26,8 @@ class Training : MonoBehaviour{
 		return (n%4 + 4)%4;
 	}
 
+	// Serializes adjacency relationships as XML,
+	// and highlights them in editor with lines.
 	public void RecordNeighbors() {
 		neighbors = new Dictionary<string, int[]>();
 		for (int y = 0; y < depth; y++){
@@ -63,6 +65,7 @@ class Training : MonoBehaviour{
 		#endif
 	}
 
+	// Converts the neighbor information to XML.
 	public string NeighborXML(){
 		Dictionary<UnityEngine.Object,int> counts = new Dictionary<UnityEngine.Object,int>();
 		string res = "<set>\n  <tiles>\n";
@@ -88,6 +91,7 @@ class Training : MonoBehaviour{
 		return res + "	</neighbors>\n</set>";
 	}
 
+	// Unused, but checks for nulls in samples
 	public bool hasWhitespace(){
 		byte ws = (byte)0;
 		for (int y = 0; y < depth-1; y++){
@@ -100,6 +104,7 @@ class Training : MonoBehaviour{
 		return false;
 	}
 
+	// Reads current contents into sample
 	public void Compile() {
 		str_tile = new Dictionary<string, byte>();
 		sample = new byte[width, depth]; 
@@ -116,6 +121,7 @@ class Training : MonoBehaviour{
 				  (tilepos.y > -0.55f) && (tilepos.y <= depth*gridsize-0.55f)){
 				UnityEngine.Object fab = tile;
 				#if UNITY_EDITOR
+				// This bit handles prefab/object confusion
 				fab = PrefabUtility.GetPrefabParent(tile);
 				if (fab == null){
 					PrefabUtility.ReconnectToLastPrefab(tile);
@@ -150,6 +156,7 @@ class Training : MonoBehaviour{
 		RS = RS.SubArray(0 , str_tile.Count+1);
 	}
 
+	// Outline the training region and mark all the tiles in it
 	void OnDrawGizmos(){
 		Gizmos.matrix = transform.localToWorldMatrix;
 		Gizmos.color = Color.magenta;

@@ -7,13 +7,14 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
-// This component lets the user draw patterns for Training to load
+// This component allows organized pattern-making,
+// for Training to read
 [RequireComponent(typeof(BoxCollider))]
 public class TilePainter : MonoBehaviour{
 	public int gridsize = 1; // Unity units per grid square.
 	public int width = 20;
 	public int height = 20;
-	public GameObject tiles; // Empty object grouping the tile objects.
+	public GameObject tiles; // Groups the tile objects. Put Training component on this.
 	private bool _changed = true; // flag for scale/position corrections on resize
 	public Vector3 cursor; // Mouse interaction
 	public bool focused = false; // Visual feedback flag
