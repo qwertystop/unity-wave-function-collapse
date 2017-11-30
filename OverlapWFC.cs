@@ -5,10 +5,12 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
+// This is the output component of the system,
+// using the overlapping version of the algorithm
 [ExecuteInEditMode]
 class OverlapWFC : MonoBehaviour{
 	public Training training = null;
-	public int gridsize = 1;
+	public int gridsize = 1; // Unity units per grid square.
 	public int width = 20;
 	public int depth = 20;
 	public int seed = 0;

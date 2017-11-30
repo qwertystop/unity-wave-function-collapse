@@ -6,13 +6,15 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
+// This is the output component of the system,
+// using the simple tiled version of the algorithm
 [ExecuteInEditMode]
 public class SimpleTiledWFC : MonoBehaviour{
 	
 	public string xmlpath = null;
 	private string subset = "";
 
-	public int gridsize = 1;
+	public int gridsize = 1; // Unity units per grid square.
 	public int width = 20;
 	public int depth = 20;
 
