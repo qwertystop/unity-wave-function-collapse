@@ -7,6 +7,8 @@ using UnityEditor;
 using System.Collections.Generic;
 
 // This component samples a subset of the canvas for the algorithm to learn from
+// It can also read noncanvas objects if you prefer a different means of positioning,
+// but whatever it reads will still be treated as grid-aligned.
 class Training : MonoBehaviour{
 	public int gridsize = 1; // Unity units per grid square
 	public int width = 12; // Width of subset

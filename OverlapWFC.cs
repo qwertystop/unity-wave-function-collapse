@@ -8,46 +8,34 @@ using UnityEditor;
 // This is the output component of the system,
 // using the overlapping version of the algorithm
 [ExecuteInEditMode]
-class OverlapWFC : MonoBehaviour{
-	public Training training = null;
-	public int gridsize = 1; // Unity units per grid square.
-	public int width = 20;
-	public int depth = 20;
-	public int seed = 0;
-	//[HideInInspector]
-	public int N = 2;
-	public bool periodicInput = false;
-	public bool periodicOutput = false;
-	public int symmetry = 1;
-	public int foundation = 0;
-	public int iterations = 0;
-	public bool incremental = false;
-	public OverlappingModel model = null;
-	public GameObject[,] rendering;
-	public GameObject output;
-	private Transform group;
-    private bool undrawn = true;
+class OverlapWFC : AbstractWFC<OverlappingModel>{
+	public Training training = null; // Training area
+	public int N = 2; // Features are NxN sections of training area
+	public bool periodicInput = false; // Input is tiling (wrap edges)
+	public bool periodicOutput = false; // Output must tile
+	public int symmetry = 1; // Symmetries to use. 0: None. 1: Rotation-specific tiles. 2-8: Undocumented.
+	public int foundation = 0; // Treat the bottom/"ground" differently (I think?)
 
 	public static bool IsPrefabRef(UnityEngine.Object o){
 		#if UNITY_EDITOR
 		return PrefabUtility.GetPrefabParent(o) == null && PrefabUtility.GetPrefabObject(o) != null;
-		#endif
+		#else
 		return true;
+		#endif
 	}
 
 	static GameObject CreatePrefab(UnityEngine.Object fab, Vector3 pos, Quaternion rot) {
 		#if UNITY_EDITOR
-		GameObject e = PrefabUtility.InstantiatePrefab(fab as GameObject) as GameObject; 
-		e.transform.position = pos;
-		e.transform.rotation = rot;
-		return e;
+		GameObject o = PrefabUtility.InstantiatePrefab(fab as GameObject) as GameObject; 
+		#else
+		GameObject o = GameObject.Instantiate(fab as GameObject) as GameObject;
 		#endif
-		GameObject o = GameObject.Instantiate(fab as GameObject) as GameObject; 
 		o.transform.position = pos;
 		o.transform.rotation = rot;
 		return o;
 	}
 
+	// Clear the output space to make way for new output
 	public void Clear(){
 		if (group != null){
 			if (Application.isPlaying){Destroy(group.gameObject);} else {
@@ -63,13 +51,8 @@ class OverlapWFC : MonoBehaviour{
 		Generate();
 	}
 
-	void Update(){
-		if (incremental){
-			Run();
-		}
-	}
-
-	public void Generate() {
+	// Read training, and set up model and output space
+	public override void Generate() {
 		if (training == null){Debug.Log("Can't Generate: no designated Training component");}
 		if (IsPrefabRef(training.gameObject)){
 			GameObject o = CreatePrefab(training.gameObject, new Vector3(0,99999f,0f), Quaternion.identity);
@@ -100,26 +83,13 @@ class OverlapWFC : MonoBehaviour{
         undrawn = true;
     }
 
-	void OnDrawGizmos(){
-		Gizmos.color = Color.cyan;
-		Gizmos.matrix = transform.localToWorldMatrix;
-		Gizmos.DrawWireCube(new Vector3(width*gridsize/2f-gridsize*0.5f, depth*gridsize/2f-gridsize*0.5f, 0f),
-							new Vector3(width*gridsize, depth*gridsize, gridsize));
-	}
-
-	public void Run(){
-		if (model == null){return;}
-        if (undrawn == false) { return; }
-        if (model.Run(seed, iterations)){
-			Draw();
-		}
-	}
-
+	// Indexes into rendering. Unused?
 	public GameObject GetTile(int x, int y){
 		return rendering[x,y];
 	}
 
-	public void Draw(){
+	// Transfer model's output into rendering/worldspace
+	public override void Draw(){
 		if (output == null){return;}
 		if (group == null){return;}
         undrawn = false;
@@ -149,9 +119,19 @@ class OverlapWFC : MonoBehaviour{
 				}
 	  		}
 	  	} catch (IndexOutOfRangeException e) {
-	  		model = null;
+			Debug.Log (e.ToString ());
+			model = null;
 	  		return;
 	  	}
+	}
+
+	// Outlines output space when active in editor
+	void OnDrawGizmos(){
+		Gizmos.color = Color.cyan;
+		Gizmos.matrix = transform.localToWorldMatrix;
+		Gizmos.DrawWireCube(
+			new Vector3(width*gridsize/2f-gridsize*0.5f, depth*gridsize/2f-gridsize*0.5f, 0f),
+			new Vector3(width*gridsize, depth*gridsize, gridsize));
 	}
 }
 
@@ -159,14 +139,14 @@ class OverlapWFC : MonoBehaviour{
 [CustomEditor (typeof(OverlapWFC))]
 public class WFCGeneratorEditor : Editor {
 	public override void OnInspectorGUI () {
-		OverlapWFC generator = (OverlapWFC)target;
-		if (generator.training != null){
+		OverlapWFC me = (OverlapWFC)target;
+		if (me.training != null){
 			if(GUILayout.Button("generate")){
-				generator.Generate();
+				me.Generate();
 			}
-			if (generator.model != null){
+			if (me.model != null){
 				if(GUILayout.Button("RUN")){
-					generator.Run();
+					me.Run();
 				}
 			}
 		}

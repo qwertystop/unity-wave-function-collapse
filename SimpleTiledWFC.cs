@@ -9,26 +9,14 @@ using UnityEditor;
 // This is the output component of the system,
 // using the simple tiled version of the algorithm
 [ExecuteInEditMode]
-public class SimpleTiledWFC : MonoBehaviour{
+class SimpleTiledWFC : AbstractWFC<SimpleTiledModel>{
 	
 	public string xmlpath = null;
 	private string subset = "";
 
-	public int gridsize = 1; // Unity units per grid square.
-	public int width = 20;
-	public int depth = 20;
-
-	public int seed = 0;
 	public bool periodic = false;
-	public int iterations = 0;
-	public bool incremental;
 
-	public SimpleTiledModel model = null;
-	public GameObject[,] rendering;
-	public GameObject output;
-	private Transform group;
 	public Dictionary<string, GameObject> obmap = new Dictionary<string, GameObject>();
-    private bool undrawn = true;
 
 	public void destroyChildren (){
 		foreach (Transform child in this.transform) {
@@ -41,28 +29,8 @@ public class SimpleTiledWFC : MonoBehaviour{
 		Run();
 	}
 
-	void Update(){
-		if (incremental){
-			Run();
-		}
-	}
-
-
-	public void Run(){
-		if (model == null){return;}
-        if (undrawn == false) { return; }
-        if (model.Run(seed, iterations)){
-			Draw();
-		}
-	}
-
-	public void OnDrawGizmos(){
-		Gizmos.matrix = transform.localToWorldMatrix;
-		Gizmos.color = Color.magenta;
-		Gizmos.DrawWireCube(new Vector3(width*gridsize/2f-gridsize*0.5f, depth*gridsize/2f-gridsize*0.5f, 0f),new Vector3(width*gridsize, depth*gridsize, gridsize));
-	}
-
-	public void Generate(){
+	// Read training, and set up model and output space
+	public override void Generate(){
 		obmap = new  Dictionary<string, GameObject>();
 
 		if (output == null){
@@ -88,7 +56,8 @@ public class SimpleTiledWFC : MonoBehaviour{
         undrawn = true;
     }
 
-	public void Draw(){
+	// Transfer model's output into rendering/worldspace
+	public override void Draw(){
 		if (output == null){return;}
 		if (group == null){return;}
         undrawn = false;
@@ -123,7 +92,15 @@ public class SimpleTiledWFC : MonoBehaviour{
                     }
 				}
 			}
-  		}	
+  		}
+	}
+
+	void OnDrawGizmos(){
+		Gizmos.color = Color.magenta;
+		Gizmos.matrix = transform.localToWorldMatrix;
+		Gizmos.DrawWireCube(
+			new Vector3(width*gridsize/2f-gridsize*0.5f, depth*gridsize/2f-gridsize*0.5f, 0f),
+			new Vector3(width*gridsize, depth*gridsize, gridsize));
 	}
 }
 
@@ -138,8 +115,7 @@ public class TileSetEditor : Editor {
 			}
 			if (me.model != null){
 				if(GUILayout.Button("RUN")){
-					me.model.Run(me.seed, me.iterations);
-					me.Draw();
+					me.Run();
 				}
 			}
 		}
