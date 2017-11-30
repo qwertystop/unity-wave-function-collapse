@@ -6,8 +6,10 @@ using UnityEditor;
 #endif
 using System.Collections.Generic;
 
+// This component handles the interface between the editor
+// and the output of the WFC algorithm
 class Training : MonoBehaviour{
-	public int gridsize = 1;
+	public int gridsize = 1; // Unity units per grid square
 	public int width = 12;
 	public int depth = 12;
 	public UnityEngine.Object[] tiles = new UnityEngine.Object[0];
@@ -52,6 +54,7 @@ class Training : MonoBehaviour{
 		System.IO.File.WriteAllText(Application.dataPath+"/"+this.gameObject.name+".xml", NeighborXML());
 	}
 
+	// String cleanup for asset paths
 	public string AssetPath(UnityEngine.Object o){
 		#if UNITY_EDITOR
 		return AssetDatabase.GetAssetPath(o).Trim().Replace("Assets/Resources/", "").Replace(".prefab", "");
@@ -164,6 +167,7 @@ class Training : MonoBehaviour{
 	}
 }
 
+// UI buttons for above
 #if UNITY_EDITOR
 [CustomEditor (typeof(Training))]
 public class TrainingEditor : Editor {
