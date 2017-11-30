@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
-// This component handles the interface between the editor and the WFC algorithm
+// This component lets the user draw patterns for Training to load
 [RequireComponent(typeof(BoxCollider))]
 public class TilePainter : MonoBehaviour{
 	public int gridsize = 1; // Unity units per grid square.
