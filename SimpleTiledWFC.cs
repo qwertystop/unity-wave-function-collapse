@@ -95,6 +95,23 @@ class SimpleTiledWFC : AbstractWFC<SimpleTiledModel>{
   		}
 	}
 
+	// Clear an area from the grid
+	protected override void ClearArea(int top, int left, int bottom, int right) {
+		Debug.Log ("Not implemented yet");
+	}
+	// Move the contents of the grid within the grid.
+	public override void Shift(int dx, int dy){
+		Debug.Log ("Not implemented yet");
+	}
+	// Update the model with the current contents of the grid
+	public override void UpdateModel(){
+		Debug.Log ("Not implemented yet");
+	}
+	// Continue generating without clearing the space first
+	public override void Continue(){
+		Debug.Log ("Not implemented yet");
+	}
+
 	void OnDrawGizmos(){
 		Gizmos.color = Color.magenta;
 		Gizmos.matrix = transform.localToWorldMatrix;
