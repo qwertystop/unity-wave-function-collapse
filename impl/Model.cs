@@ -18,8 +18,11 @@ public abstract class Model
 	protected bool init = false;
 
 	protected System.Random random;
-	protected int FMX, FMY, T, limit;
-	protected bool periodic;
+
+	protected int FMX, FMY; // FMX, FMY: Dimensions.
+	protected int T;
+	protected int limit; // Unused, but shadowed in Model.Run
+	protected bool periodic; // Does output need to tile?
 
 	double[] logProb;
 	double logT;

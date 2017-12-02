@@ -14,16 +14,23 @@ using System.Collections.Generic;
 
 static class Stuff
 {
+	// Extends double[]
+	// Normalizes `a` to sum to 1 while maintaining proportions.
+	// If `a` sums to 0, replaces all contents with 1/length instead.
+	// Returns the index in `a` of the first value in `a` greater than r
+	// Involves no actual randomness?
 	public static int Random(this double[] a, double r)
 	{
 		double sum = a.Sum();
 
+		// If `a` is all 0s, make it all 1s and retry
 		if (sum == 0)
 		{
 			for (int j = 0; j < a.Count(); j++) a[j] = 1;
 			sum = a.Sum();
 		}
 
+		// Normalize contents of `a`: now sum to 1, but the proportions are unchanged.
 		for (int j = 0; j < a.Count(); j++) a[j] /= sum;
 
 		int i = 0;
@@ -39,6 +46,7 @@ static class Stuff
 		return 0;
 	}
 
+	// Handrolled exponentiation
 	public static long Power(int a, int n)
 	{
 		long product = 1;
@@ -53,6 +61,7 @@ static class Stuff
 		return s == "" ? defaultT : (T)converter.ConvertFromString(s);
 	}
 
+	// Copy a subset of an array
 	public static T[] SubArray<T>(this T[] data, int index, int length)
 	{
 	    T[] result = new T[length];

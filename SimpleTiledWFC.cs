@@ -14,7 +14,7 @@ class SimpleTiledWFC : AbstractWFC<SimpleTiledModel>{
 	public string xmlpath = null;
 	private string subset = "";
 
-	public bool periodic = false;
+	public bool periodic = false; // Is output tiling?
 
 	public Dictionary<string, GameObject> obmap = new Dictionary<string, GameObject>();
 

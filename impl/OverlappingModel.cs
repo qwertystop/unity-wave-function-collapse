@@ -16,7 +16,7 @@ class OverlappingModel : Model
 
 	public byte[][] patterns;
 	int foundation;
-	public List<byte> colors;
+	public List<byte> colors; // Palette of valid cell values
 
 	public OverlappingModel(byte[,] sample, int N, int width, int height, bool periodicInput, bool periodicOutput, int symmetry, int foundation)
         :base(width, height)
@@ -45,6 +45,9 @@ class OverlappingModel : Model
 		int C = colors.Count;
 		long W = Stuff.Power(C, N * N);
 
+		// `pattern` is a function that takes an ((int, int) => byte)
+		// and maps that function over an array of pairs of nonnegative ints below N.
+		// Order is: (0,0), (1,0)...(N-1,0), (0,1)...(N-1,1)...(N-1,N-1)
 		Func<Func<int, int, byte>, byte[]> pattern = (f) =>
 		{
 			byte[] result = new byte[N * N];
@@ -56,11 +59,16 @@ class OverlappingModel : Model
 			return result;
 		};
 
+		// Sample the N*N square centered on (x, y)
 		Func<int, int, byte[]> patternFromSample = (x, y) => {return pattern((dx, dy) => {return sample[(x + dx) % SMX, (y + dy) % SMY];});};
+		// Rotate a flattened 2D array as though it were still 2D
 		Func<byte[], byte[]> rotate  = (p) => {return pattern((x, y) => {return p[N - 1 - y + x * N];});};
+		// As `rotate` but reflecting
 		Func<byte[], byte[]> reflect = (p) => {return pattern((x, y) => {return p[N - 1 - x + y * N];});};
 
-		Func<byte[], long> index = p =>
+		// Sum up q*(C^d), for all q in p,
+		// where d is the index of q in a reverse-ordered p.
+		Func<byte[], long> index = (p) =>
 		{
 			long result = 0, power = 1;
 			for (int i = 0; i < p.Length; i++)
