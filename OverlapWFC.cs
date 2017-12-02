@@ -139,7 +139,43 @@ class OverlapWFC : AbstractWFC<OverlappingModel>{
 
 	// Update the model with the current contents of the grid
 	public override void UpdateModel(){
-		Debug.Log ("Not implemented yet");
+		int cnt = group.transform.childCount;
+		for (int i = 0; i < cnt; i++){
+			GameObject tile = group.transform.GetChild(i).gameObject;
+			Vector3 tilepos = tile.transform.localPosition;
+			if ((tilepos.x > -0.55f) && (tilepos.x <= width*gridsize-0.55f) &&
+				(tilepos.y > -0.55f) && (tilepos.y <= depth*gridsize-0.55f)){
+				UnityEngine.Object fab = tile;
+				#if UNITY_EDITOR
+				// This bit handles prefab/object confusion
+				fab = PrefabUtility.GetPrefabParent(tile);
+				if (fab == null){
+					PrefabUtility.ReconnectToLastPrefab(tile);
+					fab = PrefabUtility.GetPrefabParent(tile);
+				}
+				if (fab == null){
+					fab = Resources.Load(tile.name);
+					if (fab){
+						tile = PrefabUtility.ConnectGameObjectToPrefab(tile, (GameObject)fab);
+					}else{
+						fab = tile;}
+				}
+
+				tile.name = fab.name;
+				#endif
+				int X = (int)(tilepos.x) / gridsize;
+				int Y = (int)(tilepos.y) / gridsize;
+				int R = (int)((360 - tile.transform.localEulerAngles.z)/90);
+				if (R == 4) {R = 0;}
+				if (training.str_tile.ContainsKey(fab.name + R)){
+					rendering[X, Y] = tile;
+					undrawn = true;
+					// TODO make sure this reaches model
+				} else {
+					Debug.Log(string.Format("Tile at ({0},{1}) not in training", X, Y));
+				}
+			}
+		}
 	}
 
 	// Continue generating without clearing the space first
