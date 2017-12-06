@@ -129,9 +129,24 @@ rendering = new GameObject[width, depth];
 
 	// Clear an area from the grid
 	protected override void ClearArea(int minx, int miny, uint dx, uint dy) {
+		// remove from model
 		model.ClearSubsec(minx, miny, dx, dy);
-		// TODO also delete instances and remove from `rendering`
-		// can probably lift some of UpdateModel shared with this?
+		// delete object instances
+		int maxx = Math.Max(minx + dx, width);
+		int maxy = Math.Max(miny + dy, depth);
+		for (int x = minx; x < maxx; x++) {
+			for (int y = miny; y < maxy; y++) {
+				GameObject obj = rendering[x,y];
+				if (obj != null) {
+					if (Application.isPlaying){
+						Destroy(obj);
+					} else {
+						DestroyImmediate(obj);
+					}
+					rendering[x,y] = null
+				}
+			}
+		}
 	}
 
 	// Move the contents of the grid within the grid.
