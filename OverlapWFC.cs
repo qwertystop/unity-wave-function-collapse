@@ -186,8 +186,8 @@ rendering = new GameObject[width, depth];
 				if (R == 4) {R = 0;}
 				if (training.str_tile.ContainsKey(fab.name + R)){
 					rendering[X, Y] = tile;
-					undrawn = true;
-					ClearArea(X, Y, 0, 0);
+					// TODO add specific tile to model
+					// TODO do we need to adjust undrawn?
 				} else {
 					Debug.Log(string.Format("Tile at ({0},{1}) not in training", X, Y));
 				}
