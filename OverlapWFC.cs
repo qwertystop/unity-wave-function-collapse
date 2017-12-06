@@ -132,8 +132,8 @@ rendering = new GameObject[width, depth];
 		// remove from model
 		model.ClearSubsec(minx, miny, dx, dy);
 		// delete object instances
-		int maxx = Math.Max(minx + dx, width);
-		int maxy = Math.Max(miny + dy, depth);
+		int maxx = Math.Max(minx + (int)dx, width);
+		int maxy = Math.Max(miny + (int)dy, depth);
 		for (int x = minx; x < maxx; x++) {
 			for (int y = miny; y < maxy; y++) {
 				GameObject obj = rendering[x,y];
@@ -143,7 +143,7 @@ rendering = new GameObject[width, depth];
 					} else {
 						DestroyImmediate(obj);
 					}
-					rendering[x,y] = null
+					rendering[x, y] = null;
 				}
 			}
 		}
