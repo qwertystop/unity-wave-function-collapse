@@ -79,11 +79,11 @@ class OverlapWFC : AbstractWFC<OverlappingModel>{
 		group.parent = output.transform;
 		group.position = output.transform.position;
 		group.rotation = output.transform.rotation;
-        group.localScale = new Vector3(1f, 1f, 1f);
-        rendering = new GameObject[width, depth];
+		group.localScale = new Vector3(1f, 1f, 1f);
+rendering = new GameObject[width, depth];
 		model = new OverlappingModel(training.sample, N, width, depth, periodicInput, periodicOutput, symmetry, foundation);
-        undrawn = true;
-    }
+		undrawn = true;
+	}
 
 	// Indexes into rendering. Unused?
 	public GameObject GetTile(int x, int y){
@@ -94,7 +94,7 @@ class OverlapWFC : AbstractWFC<OverlappingModel>{
 	public override void Draw(){
 		if (output == null){return;}
 		if (group == null){return;}
-        undrawn = false;
+		undrawn = false;
 		try{
 			for (int y = 0; y < depth; y++){
 				for (int x = 0; x < width; x++){
@@ -114,17 +114,17 @@ class OverlapWFC : AbstractWFC<OverlappingModel>{
 								rendering[x,y] = tile;
 							}
 						} else
-                        {
-                            undrawn = true;
-                        }
+						{
+							undrawn = true;
+						}
 					}
 				}
-	  		}
-	  	} catch (IndexOutOfRangeException e) {
+			}
+		} catch (IndexOutOfRangeException e) {
 			Debug.Log (e.ToString ());
 			model = null;
-	  		return;
-	  	}
+			return;
+		}
 	}
 
 	// Clear an area from the grid
@@ -195,7 +195,7 @@ class OverlapWFC : AbstractWFC<OverlappingModel>{
 	}
 }
 
- #if UNITY_EDITOR
+#if UNITY_EDITOR
 [CustomEditor (typeof(OverlapWFC))]
 public class WFCGeneratorEditor : Editor {
 	public override void OnInspectorGUI () {

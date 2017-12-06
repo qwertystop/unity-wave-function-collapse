@@ -13,7 +13,7 @@ public abstract class Model
 	public bool[][][] wave;
 	public bool[][] changes;
 	public double[] stationary;
-    protected int[][] observed;
+	protected int[][] observed;
 
 	protected bool init = false;
 
@@ -27,19 +27,19 @@ public abstract class Model
 	double[] logProb;
 	double logT;
 
-    protected Model(int width, int height)
-  	{
-  		FMX = width;
-  		FMY = height;
-  
-  		wave = new bool[FMX][][];
-  		changes = new bool[FMX][];
-  		for (int x = 0; x<FMX; x++)
-  		{
-  			wave[x] = new bool[FMY][];
-  			changes[x] = new bool[FMY];
-  		}
-  	}
+	protected Model(int width, int height)
+	{
+		FMX = width;
+		FMY = height;
+
+		wave = new bool[FMX][][];
+		changes = new bool[FMX][];
+		for (int x = 0; x<FMX; x++)
+		{
+			wave[x] = new bool[FMY][];
+			changes[x] = new bool[FMY];
+		}
+	}
 
 	protected abstract bool Propagate();
 
@@ -47,13 +47,13 @@ public abstract class Model
 	{
 		double min = 1E+3, sum, mainSum, logSum, noise, entropy;
 		int argminx = -1, argminy = -1, amount;
-        bool[] w;
+		bool[] w;
 
 		for (int x = 0; x < FMX; x++) for (int y = 0; y < FMY; y++)
 			{
 				if (OnBoundary(x, y)) continue;
 
-                w = wave[x][y];
+				w = wave[x][y];
 				amount = 0;
 				sum = 0;
 
@@ -86,21 +86,21 @@ public abstract class Model
 			}
 
 		if (argminx == -1 && argminy == -1)
-        {
-            observed = new int[FMX][];
-            for (int x = 0; x < FMX; x++)
-            {
-                observed[x] = new int[FMY];
-                for (int y = 0; y < FMY; y++) for (int t = 0; t < T; t++) if (wave[x][y][t])
-                {
-                    observed[x][y] = t;
-                    break;
-                }
-            }
-            return true;
-        }
+		{
+			observed = new int[FMX][];
+			for (int x = 0; x < FMX; x++)
+			{
+				observed[x] = new int[FMY];
+				for (int y = 0; y < FMY; y++) for (int t = 0; t < T; t++) if (wave[x][y][t])
+				{
+					observed[x][y] = t;
+					break;
+				}
+			}
+			return true;
+		}
 
-        double[] distribution = new double[T];
+		double[] distribution = new double[T];
 		for (int t = 0; t < T; t++) distribution[t] = wave[argminx][argminy][t] ? stationary[t] : 0;
 		int r = Stuff.Random(distribution, random.NextDouble());
 		for (int t = 0; t < T; t++) wave[argminx][argminy][t] = t == r;
