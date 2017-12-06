@@ -222,11 +222,10 @@ class OverlappingModel : Model
 		return res;
 	}
 
-	public override void Clear()
-	{
-		base.Clear();
+	public override void ClearSubsec(int minx, int miny, uint dx, uint dy) {
+		base.ClearSubsec(minx, miny, dx, dy);
 
-		if (foundation != 0)
+		if (minx == 0 && foundation != 0)
 		{
 			for (int x = 0; x < FMX; x++)
 			{

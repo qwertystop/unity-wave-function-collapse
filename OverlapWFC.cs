@@ -128,13 +128,15 @@ class OverlapWFC : AbstractWFC<OverlappingModel>{
 	}
 
 	// Clear an area from the grid
-	protected override void ClearArea(int top, int left, int bottom, int right) {
-		Debug.Log ("Not implemented yet");
+	protected override void ClearArea(int minx, int miny, uint dx, uint dy) {
+		model.ClearSubsec(minx, miny, dx, dy);
+		// TODO also delete instances and remove from `rendering`
+		// can probably lift some of UpdateModel shared with this?
 	}
 
 	// Move the contents of the grid within the grid.
 	public override void Shift(int dx, int dy){
-		Debug.Log ("Not implemented yet");
+		Debug.Log ("Not implemented yet"); // TODO
 	}
 
 	// Update the model with the current contents of the grid
@@ -170,7 +172,7 @@ class OverlapWFC : AbstractWFC<OverlappingModel>{
 				if (training.str_tile.ContainsKey(fab.name + R)){
 					rendering[X, Y] = tile;
 					undrawn = true;
-					// TODO make sure this reaches model
+					ClearArea(X, Y, 0, 0);
 				} else {
 					Debug.Log(string.Format("Tile at ({0},{1}) not in training", X, Y));
 				}
