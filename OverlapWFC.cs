@@ -151,11 +151,12 @@ rendering = new GameObject[width, depth];
 
 	// Move the contents of the grid within the grid.
 	public override void Shift(int dx, int dy){
-		Debug.Log ("Not implemented yet"); // TODO
+		Debug.Log ("Shift not implemented yet"); // TODO
 	}
 
 	// Update the model with the current contents of the grid
 	public override void UpdateModel(){
+		Debug.Log ("UpdateModel not implemented yet"); // TODO lower down
 		int cnt = group.transform.childCount;
 		for (int i = 0; i < cnt; i++){
 			GameObject tile = group.transform.GetChild(i).gameObject;
