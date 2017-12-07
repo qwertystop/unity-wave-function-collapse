@@ -16,7 +16,7 @@ class OverlapWFC : AbstractWFC<OverlappingModel>{
 	public int symmetry = 1; // Symmetries to use. 0: None. 1: Rotation-specific tiles. 2-8: Undocumented.
 	public int foundation = 0; // Treat the bottom/"ground" differently (I think?)
 	// these are just for in-editor testing
-	public int shiftDX = 0, shiftDY = 0;
+	public int delXLow, delXHigh, delYLow, delYHigh;
 
 	public static bool IsPrefabRef(UnityEngine.Object o){
 		#if UNITY_EDITOR
@@ -128,12 +128,11 @@ rendering = new GameObject[width, depth];
 	}
 
 	// Clear an area from the grid
-	protected override void ClearArea(int minx, int miny, uint dx, uint dy) {
+	public override void ClearArea(int minx, int miny, int maxx, int maxy) {
+		undrawn = true;
 		// remove from model
-		model.ClearSubsec(minx, miny, dx, dy);
+		model.ClearSubsec(minx, miny, maxx, maxy);
 		// delete object instances
-		int maxx = Math.Max(minx + (int)dx, width);
-		int maxy = Math.Max(miny + (int)dy, depth);
 		for (int x = minx; x < maxx; x++) {
 			for (int y = miny; y < maxy; y++) {
 				GameObject obj = rendering[x,y];
@@ -152,6 +151,27 @@ rendering = new GameObject[width, depth];
 	// Move the contents of the grid within the grid.
 	public override void Shift(int dx, int dy){
 		Debug.Log ("Shift not implemented yet"); // TODO
+		// Don't currently know how to shift it around,
+		// so this will just clear the appropriate edge
+		// but not move the free space to the opposite edge.
+		// TODO does not work, try to figure out why
+		int minx, miny, maxx, maxy;
+		if (dx < 0) {
+			minx = width + dx;
+			maxx = width;
+		} else {
+			minx = 0;
+			maxx = dx;
+		}
+		if (dy < 0) {
+			miny = depth + dy;
+			maxy = depth;
+		}
+		else {
+			miny = 0;
+			maxy = dy;
+		}
+		ClearArea(minx, miny, maxx, maxy);
 	}
 
 	// Update the model with the current contents of the grid
@@ -224,8 +244,8 @@ public class WFCGeneratorEditor : Editor {
 				if(GUILayout.Button("RUN")){
 					me.Run();
 				}
-				if(GUILayout.Button("Shift")) {
-					me.Shift (me.shiftDX, me.shiftDY);
+				if(GUILayout.Button("del box")) {
+					me.ClearArea (me.delXLow, me.delYLow, me.delXHigh, me.delYHigh);
 				}
 			}
 		}

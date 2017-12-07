@@ -43,7 +43,7 @@ abstract class AbstractWFC<M> : MonoBehaviour where M : Model {
 	// Transfer model's output into rendering/worldspace
 	public abstract void Draw();
 	// Clear an area from the grid
-	protected abstract void ClearArea(int minx, int miny, uint dx, uint dy);
+	public abstract void ClearArea(int minx, int miny, int maxx, int maxy);
 	// Update the model with the current contents of the output
 	public abstract void UpdateModel();
 	// Move the contents of the grid within the grid.

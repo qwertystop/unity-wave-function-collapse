@@ -96,7 +96,7 @@ class SimpleTiledWFC : AbstractWFC<SimpleTiledModel>{
 	}
 
 	// Clear an area from the grid
-	protected override void ClearArea(int minx, int miny, uint dx, uint dy) {
+	public override void ClearArea(int minx, int miny, int dx, int dy) {
 		Debug.Log ("Not implemented yet");
 	}
 	// Move the contents of the grid within the grid.

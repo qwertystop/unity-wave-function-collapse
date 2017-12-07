@@ -136,9 +136,7 @@ public abstract class Model
 		return true;
 	}
 
-	public virtual void ClearSubsec(int minx, int miny, uint dx, uint dy) {
-		int maxx = Math.Max(minx + (int)dx, FMX);
-		int maxy = Math.Max(miny + (int)dy, FMY);
+	public virtual void ClearSubsec(int minx, int miny, int maxx, int maxy) {
 		for (int x = minx; x < maxx; x++) for (int y = miny; y < maxy; y++)
 		{
 			for (int t = 0; t < T; t++) wave[x][y][t] = true;
@@ -150,7 +148,7 @@ public abstract class Model
 
 	public virtual void Clear()
 	{
-		ClearSubsec(0, 0, (uint)FMX, (uint)FMY);
+		ClearSubsec(0, 0, FMX, FMY);
 	}
 
 	protected abstract bool OnBoundary(int x, int y);
