@@ -144,12 +144,13 @@ public abstract class Model
 			for (int t = 0; t < T; t++) wave[x][y][t] = true;
 			changes[x][y] = false;
 		}
-		// TODO repropogate to new section afterwards
+		// Don't want it completely free, so repropagate
+		Propagate();
 	}
 
 	public virtual void Clear()
 	{
-		ClearSubsec(0, 0, FMX, FMY);
+		ClearSubsec(0, 0, (uint)FMX, (uint)FMY);
 	}
 
 	protected abstract bool OnBoundary(int x, int y);
